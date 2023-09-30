@@ -2,6 +2,8 @@ package com.br.techroom.repository;
 
 import com.br.techroom.model.AccountModel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public class AccountRepository implements JpaRepository<Long, AccountModel> {
+@Repository
+public interface AccountRepository extends JpaRepository<AccountModel,Long> {
 }
