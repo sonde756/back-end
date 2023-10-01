@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+/**
+ * basic configuration to the Authentication process.
+ */
 @Configuration
 @EnableWebSecurity
 public class AuthConfig {
@@ -29,7 +32,7 @@ public class AuthConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        .mvcMatchers("/api/v1/login").permitAll()
+                        .antMatchers("/api/v1/login").permitAll()
                         .anyRequest().authenticated()
                 )
 

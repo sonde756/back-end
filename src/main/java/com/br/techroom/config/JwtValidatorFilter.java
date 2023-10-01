@@ -17,12 +17,12 @@ import java.io.IOException;
 
 
 /**
- * Filter to get the token and validate. This filter is placed before the basicAuthenticationFilter.
+ * Filter to get the token and validate it. This filter is placed before the BasicAuthenticationFilter.
  * If the request url it is the login enpoint this filter will not filter.
  */
 public class JwtValidatorFilter extends OncePerRequestFilter {
 
-    private static final String AUTHENTICATION_HEADER = "Authentication";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_HEADER = "Bearer ";
 
 
@@ -38,7 +38,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         //getting the Authenticaton Header from request
-        String jwt = request.getHeader(AUTHENTICATION_HEADER);
+        String jwt = request.getHeader(AUTHORIZATION_HEADER);
 
         // if the token is null then the filterchain do filter and return
         if(jwt == null){
@@ -64,6 +64,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
         //putting the Authentication inside security context holder.
         SecurityContextHolder.getContext().setAuthentication(auth);
 
+        filterChain.doFilter(request,response);
 
     }
 
