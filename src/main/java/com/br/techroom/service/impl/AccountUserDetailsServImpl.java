@@ -15,12 +15,13 @@ import java.util.regex.Pattern;
 
 /**
  * class implementation of the UserDetailsService for the AccountModel.
+ * @Author Victor Vilar
  */
 @Service
 public class AccountUserDetailsServImpl implements UserDetailsService {
 
     /**
-     * patten to find valid email
+     * patten to find if the given user name it is an email
      */
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);

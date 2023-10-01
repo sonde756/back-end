@@ -22,6 +22,12 @@ public class AccountServiceImpl {
     @Autowired
     private JwtService jwtService;
 
+    /**
+     * The attempt to authentication method
+     * @param loginRequestDto username and password from a registred user
+     * @return Login responsedto with its usename and token
+     */
+
     public LoginResponseDTO attemptAuthentication(LoginRequestDTO loginRequestDto){
 
 

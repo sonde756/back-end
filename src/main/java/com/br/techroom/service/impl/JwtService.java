@@ -15,13 +15,14 @@ import java.util.Map;
 
 /**
  * service to manager the Jwt Token from the application.
+ * @Author Victor Vilar
  */
 @Service
 public class JwtService {
 
 
     /**
-     * this SECRET KEY WILL BE REPLACED IN PRODUCTIION
+     * this SECRET KEY WILL BE REPLACED IN PRODUCTIION******
      */
     private static final String SECRET_KEY =  "techroom application secrect key for tests.";
 
