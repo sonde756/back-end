@@ -1,13 +1,35 @@
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    '[org.springframework.boot.context]': INFO
+
 postgres:
   host: ${POSTGRES_HOST:localhost:5432}
 server:
   port: 8081
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   datasource:
+
     url: jdbc:postgresql://${postgres.host}/users
     username: supersu
     password: prakt3010
+
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+springfox:
+  documentation:
+    info:
+      title: TechRoom API
+      description: TechRoom API Docs.
+      version: 1.0
+    base-package: com.br.techroom
