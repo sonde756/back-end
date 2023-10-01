@@ -1,5 +1,6 @@
 package com.br.techroom.config;
 
+import com.br.techroom.service.impl.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,7 +33,7 @@ public class AuthConfig {
                         .anyRequest().authenticated()
                 )
 
-                .addFilterBefore(new JwtValidatorFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JwtValidatorFilter(new JwtService()), BasicAuthenticationFilter.class)
 
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
