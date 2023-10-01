@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +30,10 @@ public class AccountServiceImplTest {
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Mock
+    private ModelMapper modelMapper;
+
+
     @Test
     public void save() {
         var account = new RegisterRequestDTO("username", "email", "password", "password");
@@ -38,6 +43,7 @@ public class AccountServiceImplTest {
         when(accountRepository.existsByEmail(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("password");
         when(accountRepository.save(accountModel)).thenReturn(accountModel);
+        when(modelMapper.map(account, AccountModel.class)).thenReturn(accountModel);
 
         var result = accountService.save(account);
 

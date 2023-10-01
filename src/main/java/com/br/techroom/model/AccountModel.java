@@ -3,6 +3,7 @@ package com.br.techroom.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 
 /**
  * Classe de modelo de conta de usuário.
@@ -23,6 +24,7 @@ public class AccountModel {
     @Column(unique = true, nullable = false, length = 20)
     private String username;
     @Column(unique = true, nullable = false, length = 100)
+    @Email
     private String email;
     @Column(nullable = false)
     private String password;

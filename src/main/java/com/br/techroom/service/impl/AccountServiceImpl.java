@@ -6,10 +6,13 @@ import com.br.techroom.exception.ValidationRegisterException;
 import com.br.techroom.model.AccountModel;
 import com.br.techroom.repository.AccountRepository;
 import com.br.techroom.service.AccountService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 /**
  *@author Edson Rafael
@@ -22,6 +25,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private ModelMapper modelMapper;
 
     /**
      * Método responsável por salvar um novo usuário no banco de dados.
@@ -30,6 +35,7 @@ public class AccountServiceImpl implements AccountService {
      *
      */
     @Override
+    @Transactional
     public AccountModel save(RegisterRequestDTO account) {
         try {
 
@@ -44,8 +50,7 @@ public class AccountServiceImpl implements AccountService {
             }
 
             account.setPassword(passwordEncoder.encode(account.getPassword()));
-            var accountModel = new AccountModel(null,account.getUsername(),
-                    account.getEmail().toLowerCase(), account.getPassword());
+            var accountModel = modelMapper.map(account, AccountModel.class);
 
             return accountRepository.save(accountModel);
         } catch (DataAccessException e) {
