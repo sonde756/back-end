@@ -2,6 +2,7 @@ package com.br.techroom.controller;
 
 
 import com.br.techroom.dto.requests.RegisterRequestDTO;
+import com.br.techroom.dto.responses.ApiResponseRegister;
 import com.br.techroom.dto.responses.RegisterResponseDTO;
 import com.br.techroom.service.AccountService;
 import io.swagger.annotations.Api;
@@ -44,17 +45,17 @@ public class AccountController {
     @ApiOperation(value = "Account registration")
     @ApiResponses(@ApiResponse(code = 201, message = "Account successfully registered"))
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> register(@RequestBody @Valid RegisterRequestDTO account) {
+    public ResponseEntity<ApiResponseRegister<RegisterResponseDTO>> register(@RequestBody @Valid RegisterRequestDTO account) {
         var dados = accountService.save(account);
-
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(dados.getIdUser())
                 .toUri();
-
         var dto = modelMapper.map(dados, RegisterResponseDTO.class);
-        return ResponseEntity.created(location).body(dto);
+        var response = new ApiResponseRegister<>("success", dto);
+        return ResponseEntity.created(location).body(response);
     }
+
 }
 
