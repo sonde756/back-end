@@ -22,8 +22,8 @@ import java.io.IOException;
  */
 public class JwtValidatorFilter extends OncePerRequestFilter {
 
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_HEADER = "Bearer ";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String BEARER_HEADER = "Bearer ";
 
 
     private JwtService jwtService;
@@ -70,7 +70,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getRequestURL().equals("/api/v1/login") || request.getRequestURL().equals("/api/v1/register");
+        return request.getRequestURL().toString().equals("/api/v1/login") || request.getRequestURL().toString().equals("/api/v1/register");
     }
 
 }
