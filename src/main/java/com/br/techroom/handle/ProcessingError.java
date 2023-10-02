@@ -90,15 +90,19 @@ public class ProcessingError {
             errors.add(errorMessage);
         });
 
+        String errorString = String.join(", ", errors);
+
         ResponseMessageError responseMessageError = new ResponseMessageError(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 request.getRequestURI()
         );
-        responseMessageError.setError(errors.toString());
+        responseMessageError.setError(errorString);
 
         return new ResponseEntity<>(responseMessageError, HttpStatus.BAD_REQUEST);
     }
+
+
 
 
 
