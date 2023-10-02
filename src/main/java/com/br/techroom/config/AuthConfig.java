@@ -32,7 +32,7 @@ public class AuthConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        .antMatchers("/api/v1/login").permitAll()
+                        .antMatchers("/api/v1/login","/api/v1/register").permitAll()
                         .anyRequest().authenticated()
                 )
 
