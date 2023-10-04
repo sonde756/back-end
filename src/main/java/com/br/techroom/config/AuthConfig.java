@@ -33,6 +33,7 @@ public class AuthConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .antMatchers("/api/v1/login", "/api/v1/register").permitAll()
+                        .antMatchers("/swagger-ui/**", "/v2/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
