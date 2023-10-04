@@ -2,13 +2,11 @@ package com.br.techroom.config;
 
 import com.br.techroom.service.impl.JwtService;
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,9 +24,8 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
     public static final String BEARER_HEADER = "Bearer ";
 
 
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
-    @Autowired
     public JwtValidatorFilter(JwtService jwtService){
         this.jwtService = jwtService;
     }

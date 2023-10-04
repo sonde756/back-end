@@ -1,6 +1,8 @@
 package com.br.techroom.service.impl;
 
+import com.br.techroom.dto.requests.LoginRequestDTO;
 import com.br.techroom.dto.requests.RegisterRequestDTO;
+import com.br.techroom.dto.responses.LoginResponseDTO;
 import com.br.techroom.exception.InternalErrorException;
 import com.br.techroom.exception.ValidationRegisterException;
 import com.br.techroom.model.AccountModel;
@@ -9,24 +11,16 @@ import com.br.techroom.service.AccountService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.br.techroom.dto.requests.LoginRequestDTO;
-import com.br.techroom.dto.responses.LoginResponseDTO;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import lombok.extern.java.Log;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
-
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Date;
 
 
 /**
@@ -39,6 +33,7 @@ public class AccountServiceImpl implements AccountService {
     private AccountRepository accountRepository;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -106,8 +101,8 @@ public class AccountServiceImpl implements AccountService {
 
     /**
      * create claims to the jwt
-     * @param authentication
-     * @return
+     * @param authentication  authentication
+     * @return claims
      */
     private Map<String,Object> createClaims(Authentication authentication){
         Map<String,Object> claims = new HashMap<>();

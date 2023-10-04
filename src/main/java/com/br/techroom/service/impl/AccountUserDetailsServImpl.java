@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class AccountUserDetailsServImpl implements UserDetailsService {
 
     /**
-     * patten to find if the given user name it is an email
+     * patten to find if the given username it is an email
      */
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
@@ -59,8 +59,8 @@ public class AccountUserDetailsServImpl implements UserDetailsService {
 
     /**
      * validates the username send by the user
-     * @param emailStr
-     * @return
+     * @param emailStr the
+     * @return match
      */
     private boolean validate(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);

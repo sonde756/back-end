@@ -1,18 +1,12 @@
 package com.br.techroom.model;
 
 import lombok.*;
-
-import javax.persistence.*;
-import java.util.Date;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Date;
 
 
 /**
@@ -36,9 +30,9 @@ public class AccountModel implements UserDetails {
     @Column(unique = true, nullable = false, length = 100)
     private String email;
     @Column(nullable = false)
-    private Date createdAt;
-    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    private Date createdAt;
 
 
 
