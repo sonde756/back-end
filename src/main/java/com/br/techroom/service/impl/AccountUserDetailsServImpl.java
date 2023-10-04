@@ -48,7 +48,7 @@ public class AccountUserDetailsServImpl implements UserDetailsService {
         }
 
         //if the user was not found, then it will trow usernameNotFoundException
-        if(!account.isPresent()){
+        if(account.isEmpty()){
             throw new UsernameNotFoundException("username not found !");
         }
 
