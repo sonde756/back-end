@@ -13,16 +13,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 
 /**
- *@author Edson Rafael
+ * @author Edson Rafael
  */
 @Service
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private AccountRepository accountRepository;
-
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
@@ -32,7 +33,6 @@ public class AccountServiceImpl implements AccountService {
      * Método responsável por salvar um novo usuário no banco de dados.
      *
      * @return AccountModel
-     *
      */
     @Override
     @Transactional
@@ -51,6 +51,8 @@ public class AccountServiceImpl implements AccountService {
 
             account.setPassword(passwordEncoder.encode(account.getPassword()));
             var accountModel = modelMapper.map(account, AccountModel.class);
+
+            accountModel.setCreatedAt(new Date());
 
             return accountRepository.save(accountModel);
         } catch (DataAccessException e) {

@@ -3,12 +3,12 @@ package com.br.techroom.model;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
+import java.util.Date;
 
 /**
  * Classe de modelo de conta de usuário.
  *
- *@author Edson Rafael
+ * @author Edson Rafael
  */
 @Getter
 @Setter
@@ -24,8 +24,9 @@ public class AccountModel {
     @Column(unique = true, nullable = false, length = 20)
     private String username;
     @Column(unique = true, nullable = false, length = 100)
-    @Email
     private String email;
+    @Column(nullable = false)
+    private Date createdAt;
     @Column(nullable = false)
     private String password;
 }
