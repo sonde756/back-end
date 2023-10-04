@@ -2,6 +2,7 @@ package com.br.techroom.config;
 
 import com.br.techroom.service.impl.JwtService;
 import io.jsonwebtoken.Claims;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +33,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
 
         //getting the Authenticaton Header from request
         String jwt = request.getHeader(AUTHORIZATION_HEADER);
@@ -66,7 +67,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request){
         return request.getRequestURL().toString().equals("/api/v1/login") || request.getRequestURL().toString().equals("/api/v1/register");
     }
 

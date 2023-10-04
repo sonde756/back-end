@@ -30,7 +30,7 @@ class AccountUserDetailsServImplTest {
     String username;
     String email;
 
-    AccountModel accountModel = new AccountModel();
+    final AccountModel accountModel = new AccountModel();
 
     @BeforeEach
     void setUp(){
@@ -62,9 +62,8 @@ class AccountUserDetailsServImplTest {
     void loadUserByUsernameThrowsUsernameNotFoundExceptionWhenPassInvalidUsername() {
 
         when(this.accountRepository.findByUsername(username)).thenReturn(Optional.empty());
-        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class, () -> {
-            UserDetails userDetails = this.accountUserDetailsServ.loadUserByUsername(username);
-        });
+        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class,
+                () -> this.accountUserDetailsServ.loadUserByUsername(username));
 
         Assertions.assertEquals("username not found !", thrown.getMessage());
 
@@ -75,9 +74,8 @@ class AccountUserDetailsServImplTest {
     void loadUserByUsernameThrowsUsernameNotFoundExceptionWhenPassInvalidEmail() {
 
         when(this.accountRepository.findByEmail(email)).thenReturn(Optional.empty());
-        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class, () -> {
-            UserDetails userDetails = this.accountUserDetailsServ.loadUserByUsername(email);
-        });
+        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class,
+                () -> this.accountUserDetailsServ.loadUserByUsername(email));
 
         Assertions.assertEquals("username not found !", thrown.getMessage());
     }

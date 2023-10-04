@@ -65,6 +65,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new ValidationRegisterException("Email já existe");
             }
 
+
             account.setPassword(passwordEncoder.encode(account.getPassword()));
             var accountModel = modelMapper.map(account, AccountModel.class);
 
