@@ -82,7 +82,8 @@ public class AccountServiceImpl implements AccountService {
      * @param loginRequestDto username and password from a registred user
      * @return Login responsedto with its usename and token
      */
-
+    @Override
+    @Transactional
     public LoginResponseDTO attemptAuthentication(LoginRequestDTO loginRequestDto) {
         try {
 
