@@ -14,7 +14,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,16 +30,20 @@ import java.util.Map;
 @Service
 public class AccountServiceImpl implements AccountService {
 
+    private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
+    private final AuthenticationManager auhtenticationManager;
+    private final JwtService jwtService;
+
     @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private AuthenticationManager auhtenticationManager;
-    @Autowired
-    private JwtService jwtService;
+    public AccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper, AuthenticationManager auhtenticationManager, JwtService jwtService) {
+        this.accountRepository = accountRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.modelMapper = modelMapper;
+        this.auhtenticationManager = auhtenticationManager;
+        this.jwtService = jwtService;
+    }
 
     /**
      * Método responsável por salvar um novo usuário no banco de dados.
@@ -74,39 +78,47 @@ public class AccountServiceImpl implements AccountService {
 
     /**
      * The attempt to authentication method
+     *
      * @param loginRequestDto username and password from a registred user
      * @return Login responsedto with its usename and token
      */
 
-    public LoginResponseDTO attemptAuthentication(LoginRequestDTO loginRequestDto){
+    public LoginResponseDTO attemptAuthentication(LoginRequestDTO loginRequestDto) {
+        try {
 
+            //attempt to authenticate the login request
+            Authentication auth = this.auhtenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword())
+            );
 
-        //attempt to authenticate the login request
-        Authentication auth = this.auhtenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(),loginRequestDto.getPassword())
-        );
+            //if there is no error then
+            //create a new login response dto
+            LoginResponseDTO loginResponseDto = new LoginResponseDTO();
 
-        //if there is no error then
-        //create a new login response dto
-        LoginResponseDTO loginResponseDto = new LoginResponseDTO();
+            //setting name
+            loginResponseDto.setUsername(auth.getName());
 
-        //setting name
-        loginResponseDto.setUsername(auth.getName());
+            //creating the claims for the token and return the token
+            loginResponseDto.setToken(this.jwtService.generateToken(this.createClaims(auth)));
 
-        //creating the claims for the token and return the token
-        loginResponseDto.setToken(this.jwtService.generateToken(this.createClaims(auth)));
-
-        return loginResponseDto;
+            return loginResponseDto;
+        } catch (DataAccessException e) {
+            throw new InternalErrorException(e.getMessage());
+        } catch (AuthenticationException e) {
+            throw new ValidationRegisterException("Usuário ou senha inválidos");
+        }
     }
+
 
     /**
      * create claims to the jwt
-     * @param authentication  authentication
+     *
+     * @param authentication authentication
      * @return claims
      */
-    private Map<String,Object> createClaims(Authentication authentication){
-        Map<String,Object> claims = new HashMap<>();
-        claims.put("username",authentication.getName());
+    private Map<String, Object> createClaims(Authentication authentication) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("username", authentication.getName());
 
         return claims;
 
