@@ -2,13 +2,12 @@ package com.br.techroom.config;
 
 import com.br.techroom.service.impl.JwtService;
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,16 +25,15 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
     public static final String BEARER_HEADER = "Bearer ";
 
 
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
-    @Autowired
     public JwtValidatorFilter(JwtService jwtService){
         this.jwtService = jwtService;
     }
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
 
         //getting the Authenticaton Header from request
         String jwt = request.getHeader(AUTHORIZATION_HEADER);
@@ -69,7 +67,7 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request){
         return request.getRequestURL().toString().equals("/api/v1/login") || request.getRequestURL().toString().equals("/api/v1/register");
     }
 

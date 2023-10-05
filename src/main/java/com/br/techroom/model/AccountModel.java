@@ -1,31 +1,39 @@
 package com.br.techroom.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Date;
 
-@Entity
-@Data
+
+/**
+ * Classe de modelo de conta de usuário.
+ *
+ * @author Edson Rafael
+ */
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="accounts")
+@EqualsAndHashCode(of = "idUser")
+@Table
+@Entity
 public class AccountModel implements UserDetails {
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "user_id")
-    private Integer idd;
-
+    private Long idUser;
+    @Column(unique = true, nullable = false, length = 20)
     private String username;
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
-    @Column(name="user_password")
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
+    private Date createdAt;
+
 
 
     @Override

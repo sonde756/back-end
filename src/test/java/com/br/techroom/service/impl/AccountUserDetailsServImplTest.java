@@ -2,7 +2,6 @@ package com.br.techroom.service.impl;
 
 import com.br.techroom.model.AccountModel;
 import com.br.techroom.repository.AccountRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +30,7 @@ class AccountUserDetailsServImplTest {
     String username;
     String email;
 
-    AccountModel accountModel = new AccountModel();
+    final AccountModel accountModel = new AccountModel();
 
     @BeforeEach
     void setUp(){
@@ -63,9 +62,8 @@ class AccountUserDetailsServImplTest {
     void loadUserByUsernameThrowsUsernameNotFoundExceptionWhenPassInvalidUsername() {
 
         when(this.accountRepository.findByUsername(username)).thenReturn(Optional.empty());
-        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class, () -> {
-            UserDetails userDetails = this.accountUserDetailsServ.loadUserByUsername(username);
-        });
+        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class,
+                () -> this.accountUserDetailsServ.loadUserByUsername(username));
 
         Assertions.assertEquals("username not found !", thrown.getMessage());
 
@@ -76,9 +74,8 @@ class AccountUserDetailsServImplTest {
     void loadUserByUsernameThrowsUsernameNotFoundExceptionWhenPassInvalidEmail() {
 
         when(this.accountRepository.findByEmail(email)).thenReturn(Optional.empty());
-        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class, () -> {
-            UserDetails userDetails = this.accountUserDetailsServ.loadUserByUsername(email);
-        });
+        UsernameNotFoundException thrown = Assertions.assertThrows(UsernameNotFoundException.class,
+                () -> this.accountUserDetailsServ.loadUserByUsername(email));
 
         Assertions.assertEquals("username not found !", thrown.getMessage());
     }

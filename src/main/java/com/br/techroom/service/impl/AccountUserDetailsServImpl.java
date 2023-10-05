@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,17 +20,17 @@ import java.util.regex.Pattern;
 public class AccountUserDetailsServImpl implements UserDetailsService {
 
     /**
-     * patten to find if the given user name it is an email
+     * patten to find if the given username it is an email
      */
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    public AccountUserDetailsServImpl(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
 
     @Override
@@ -48,7 +47,7 @@ public class AccountUserDetailsServImpl implements UserDetailsService {
         }
 
         //if the user was not found, then it will trow usernameNotFoundException
-        if(!account.isPresent()){
+        if(account.isEmpty()){
             throw new UsernameNotFoundException("username not found !");
         }
 
@@ -59,8 +58,8 @@ public class AccountUserDetailsServImpl implements UserDetailsService {
 
     /**
      * validates the username send by the user
-     * @param emailStr
-     * @return
+     * @param emailStr the
+     * @return match
      */
     private boolean validate(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);

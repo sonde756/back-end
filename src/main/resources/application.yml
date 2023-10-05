@@ -1,24 +1,35 @@
-##postgres:
-##  host: ${POSTGRES_HOST:localhost:5432}
-##server:
-##  port: 8081
-#
-spring:
-  profiles:
-    active: development
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    '[org.springframework.boot.context]': INFO
 
-  # Database
+postgres:
+  host: ${POSTGRES_HOST:localhost:5432}
+server:
+  port: 8081
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/db_techroom
-    username: postgres
-    password: 231090
-  # JPA properties
+
+    url: jdbc:postgresql://${postgres.host}/techroom
+    username: supersu
+    password: prakt3010
+
+
   jpa:
     hibernate:
-      ddl-auto: update # When you launch the application for the first time - switch "none" at "create"
+      ddl-auto: update
     show-sql: true
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    open-in-view: false
-    generate-ddl: true
+
+springfox:
+  documentation:
+    info:
+      title: TechRoom API
+      description: TechRoom API Docs.
+      version: 1.0
+    base-package: com.br.techroom

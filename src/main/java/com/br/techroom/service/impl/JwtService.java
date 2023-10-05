@@ -2,7 +2,6 @@ package com.br.techroom.service.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,6 @@ public class JwtService {
 
     /**
      * generate the token
-     * @param claims
      * @return a jws token
      */
     public String generateToken(Map<String, Object> claims){
