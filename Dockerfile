@@ -9,4 +9,5 @@ RUN mvn package
 FROM openjdk:11-jre-slim
 WORKDIR /app
 COPY --from=build /app/target/techroom-1.0-SNAPSHOT.jar ./app.jar
+EXPOSE $SERVER_PORT
 CMD ["java", "-jar", "app.jar"]

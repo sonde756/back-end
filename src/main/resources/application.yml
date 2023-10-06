@@ -16,7 +16,7 @@ spring:
       matching-strategy: ant_path_matcher
   datasource:
 
-    url: jdbc:postgresql://${postgres.host}/techroom
+    url: jdbc:postgresql://${postgres.host}/users
     username: supersu
     password: prakt3010
 
