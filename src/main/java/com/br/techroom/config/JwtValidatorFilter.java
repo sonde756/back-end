@@ -27,48 +27,53 @@ public class JwtValidatorFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    public JwtValidatorFilter(JwtService jwtService){
+    public JwtValidatorFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,@NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         //getting the Authenticaton Header from request
         String jwt = request.getHeader(AUTHORIZATION_HEADER);
 
         // if the token is null then the filterchain do filter and return
-        if(jwt == null){
-            filterChain.doFilter(request,response);
+        if (jwt == null) {
+            filterChain.doFilter(request, response);
             return;
         }
 
+
         //if the jwt does not start with 'Bearer ' then filterchain do filer and return
-        if(!jwt.startsWith(BEARER_HEADER)){
-            filterChain.doFilter(request,response);
+        if (!jwt.startsWith(BEARER_HEADER)) {
+            filterChain.doFilter(request, response);
             return;
         }
 
         //replace 'Bearer ' for ''
-        jwt = jwt.replace(BEARER_HEADER,"");
+        jwt = jwt.replace(BEARER_HEADER, "");
 
         //try to validate the jwt,
         Claims claims = this.jwtService.validateToken(jwt);
 
         //if the token is valid then creates a new Authentication
-        Authentication auth = new UsernamePasswordAuthenticationToken(claims.get("username"),null,null);
+        Authentication auth = new UsernamePasswordAuthenticationToken(claims.get("username"), null, null);
 
         //putting the Authentication inside security context holder.
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
 
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request){
-        return request.getRequestURL().toString().equals("/api/v1/login") || request.getRequestURL().toString().equals("/api/v1/register");
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String url = request.getRequestURL().toString();
+        return url.equals("/api/v1/login")
+               || url.equals("/api/v1/register")
+               || url.contains("/swagger-ui/")
+               || url.contains("/v2/api-docs");
     }
 
 }

@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
  */
 @Configuration
 @EnableWebSecurity
-public class AuthConfig {
+public class SecurityConfig{
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,7 +33,7 @@ public class AuthConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .antMatchers("/api/v1/login", "/api/v1/register").permitAll()
-                        .antMatchers("/swagger-ui/**", "/v2/api-docs/**").permitAll()
+                        .antMatchers("/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs", "/v3/api-docs", "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
