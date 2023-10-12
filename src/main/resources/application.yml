@@ -16,15 +16,27 @@ spring:
       matching-strategy: ant_path_matcher
   datasource:
 
-    url: jdbc:postgresql://${postgres.host}/users
-    username: supersu
-    password: prakt3010
+    url: jdbc:postgresql://${postgres.host}/techroom
+    username: postgres
+    password: 1234567
 
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: edsonrafael756l@gmail.com
+    password: 1YtM520PGVSkdcwh
+    properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+
 
 springfox:
   documentation:
