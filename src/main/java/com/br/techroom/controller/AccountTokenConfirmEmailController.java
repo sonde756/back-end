@@ -17,15 +17,17 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AccountTokenConfirmEmailController {
 
+    final AccountTokenConfirmEmailService accountTokenConfirmEmailService;
+
     @Autowired
-    AccountTokenConfirmEmailService accountTokenConfirmEmailService;
+    public AccountTokenConfirmEmailController(AccountTokenConfirmEmailService accountTokenConfirmEmailService) {
+        this.accountTokenConfirmEmailService = accountTokenConfirmEmailService;
+    }
 
     @ApiOperation(value = "Confirm email with token")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Email confirmed"),
-            @ApiResponse(code = 400, message = "Bad request"),
-            @ApiResponse(code = 404, message = "Token not found"),
-            @ApiResponse(code = 500, message = "Internal server error")
+            @ApiResponse(code = 400, message = "Bad request")
     })
     @GetMapping("/activate/{token}")
     public ResponseEntity<ApiResponseConfirmEmail> confirmEmail(@PathVariable String token) {
