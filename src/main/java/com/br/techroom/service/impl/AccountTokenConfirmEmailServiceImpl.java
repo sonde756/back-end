@@ -77,12 +77,13 @@ public class AccountTokenConfirmEmailServiceImpl implements AccountTokenConfirmE
 
         var account = accountRepository.getReferenceById(accountToken.getIdUser().getIdUser());
 
+
+        //Case the token is expired, a new token is generated and sent to the user's email
         if (accountToken.getDateExpiration().isBefore(LocalDateTime.now())) {
             accountToken.setTokenConfirmation(generateToken());
             accountToken.setDateExpiration(LocalDateTime.now().plusDays(1));
             emailService.sendEmailConfirmation(account.getUsername(), account.getEmail(), accountToken.getTokenConfirmation());
             accountTokenEmailRepository.save(accountToken);
-
             throw new ConfirmEmailException("Token expirado, um novo token foi enviado para o seu e-mail");
         }
 
@@ -92,6 +93,7 @@ public class AccountTokenConfirmEmailServiceImpl implements AccountTokenConfirmE
 
         account.setStatus(statusService.findByStatus(StatusConstants.TYPE_USER, StatusConstants.USER_ACTIVE));
         accountRepository.save(account);
+        //deleting the token after the email is confirmed
         accountTokenEmailRepository.delete(accountToken);
 
     }
