@@ -6,6 +6,7 @@ import com.br.techroom.dto.requests.RegisterRequestDTO;
 import com.br.techroom.dto.responses.LoginResponseDTO;
 import com.br.techroom.exception.InternalErrorException;
 import com.br.techroom.exception.ValidationRegisterException;
+import com.br.techroom.exception.ValidationRegisterLogin;
 import com.br.techroom.model.AccountModel;
 import com.br.techroom.repository.AccountRepository;
 import com.br.techroom.service.AccountService;
@@ -17,7 +18,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,16 +41,17 @@ public class AccountServiceImpl implements AccountService {
     private final StatusService statusService;
     private final AccountTokenConfirmEmailService accountTokenEmailService;
 
+
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder,
                               ModelMapper modelMapper, AuthenticationManager auhtenticationManager,
-                              JwtService jwtService, StatusService statusService, AccountTokenConfirmEmailService accountTokenEmailService) {
+                              JwtService jwtService, StatusService statusService1, AccountTokenConfirmEmailService accountTokenEmailService) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
         this.auhtenticationManager = auhtenticationManager;
         this.jwtService = jwtService;
-        this.statusService = statusService;
+        this.statusService = statusService1;
         this.accountTokenEmailService = accountTokenEmailService;
     }
 
@@ -103,6 +104,13 @@ public class AccountServiceImpl implements AccountService {
     public LoginResponseDTO attemptAuthentication(LoginRequestDTO loginRequestDto) {
         try {
 
+            AccountModel account = accountRepository.findByUsername(loginRequestDto.getUsername())
+                    .orElseThrow(() -> new ValidationRegisterLogin("Usuário ou senha inválidos"));
+
+            if (account.getStatus().equals(statusService.findByStatus(StatusConstants.TYPE_USER, StatusConstants.USER_NEW))) {
+                throw new ValidationRegisterLogin("Usuário não confirmado");
+            }
+
             //attempt to authenticate the login request
             Authentication auth = this.auhtenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword())
@@ -121,8 +129,6 @@ public class AccountServiceImpl implements AccountService {
             return loginResponseDto;
         } catch (DataAccessException e) {
             throw new InternalErrorException(e.getMessage());
-        } catch (AuthenticationException e) {
-            throw new ValidationRegisterException("Usuário ou senha inválidos");
         }
     }
 
