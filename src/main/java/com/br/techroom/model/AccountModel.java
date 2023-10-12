@@ -24,6 +24,7 @@ import java.util.Date;
 public class AccountModel implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_user")
     private Long idUser;
     @Column(unique = true, nullable = false, length = 20)
     private String username;
@@ -31,8 +32,11 @@ public class AccountModel implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "created_at")
     private Date createdAt;
+    @ManyToOne
+    @JoinColumn(name = "id_status", referencedColumnName = "id_status")
+    private Status status;
 
 
 
