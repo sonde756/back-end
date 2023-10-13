@@ -19,10 +19,10 @@ public class Status {
     @Column(name = "id_status")
     private Long idStatus;
 
-    @Column(name = "type_status")
+    @Column(name = "type_status", length = 20)
     private String typeStatus;
 
-    @Column(name = "status")
+    @Column(name = "status", length = 20)
     private String status;
 
 }

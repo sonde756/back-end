@@ -21,10 +21,11 @@ public class AccountTokenConfirmEmail {
     @Column(name = "id_user_token")
     private Long idUserToken;
 
-    @Column(name = "token_confirmation")
+    @Column(name = "token_confirmation", length = 60, nullable = false)
     private String tokenConfirmation;
 
-    @Column(name = "date_expiration")
+    @Column(name = "date_expiration",
+            nullable = false, columnDefinition = "TIMESTAMP", length = 35)
     private LocalDateTime dateExpiration;
 
     @OneToOne
