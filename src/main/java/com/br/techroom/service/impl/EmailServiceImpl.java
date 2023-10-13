@@ -43,7 +43,6 @@ public class EmailServiceImpl implements EmailService {
             helper.setTo(email);
             helper.setSubject("Confirmação de cadastro");
 
-
             String content = modelEmailHTML(username, token);
             helper.setText(content, true);
 
