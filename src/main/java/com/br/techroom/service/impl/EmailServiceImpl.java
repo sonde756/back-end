@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @Author Edson
@@ -38,15 +39,16 @@ public class EmailServiceImpl implements EmailService {
             MimeMessage message = javaMailSender.createMimeMessage();
 
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom("edsonrafael756l@gmail.com");
+            helper.setFrom("cadastro@techroom.com","TechRoom");
             helper.setTo(email);
             helper.setSubject("Confirmação de cadastro");
+
 
             String content = modelEmailHTML(username, token);
             helper.setText(content, true);
 
             javaMailSender.send(message);
-        } catch (MessagingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             throw new InternalErrorException("Erro ao enviar o e-mail de confirmação.");
         }
     }
