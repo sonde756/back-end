@@ -28,7 +28,7 @@ public class StatusServiceImpl implements StatusService {
      * @param status     the status
      * @return the status found
      */
-    public Status findByStatus(String typeStatus, String status) throws ValidationRegisterException {
+    public Status findByStatus(String typeStatus, String status) {
         return statusRepository.findByTypeStatusAndStatus(typeStatus, status)
                 .orElseThrow(() -> new ValidationRegisterException("Status não encontrado"));
     }

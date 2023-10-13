@@ -16,9 +16,10 @@ spring:
       matching-strategy: ant_path_matcher
   datasource:
 
-    url: jdbc:postgresql://${postgres.host}/techroom
-    username: postgres
-    password: 1234567
+    url: jdbc:postgresql://${postgres.host}/users
+    username: supersu
+    password: prakt3010
+
 
 
   jpa:
@@ -31,11 +32,11 @@ spring:
     username: edsonrafael756l@gmail.com
     password: 1YtM520PGVSkdcwh
     properties:
-        mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: true
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 
 springfox:

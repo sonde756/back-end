@@ -6,7 +6,6 @@ import com.br.techroom.dto.requests.RegisterRequestDTO;
 import com.br.techroom.dto.responses.LoginResponseDTO;
 import com.br.techroom.exception.InternalErrorException;
 import com.br.techroom.exception.ValidationRegisterException;
-import com.br.techroom.exception.ValidationRegisterLogin;
 import com.br.techroom.model.AccountModel;
 import com.br.techroom.repository.AccountRepository;
 import com.br.techroom.service.AccountService;
@@ -103,14 +102,6 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public LoginResponseDTO attemptAuthentication(LoginRequestDTO loginRequestDto) {
         try {
-
-            AccountModel account = accountRepository.findByUsername(loginRequestDto.getUsername())
-                    .orElseThrow(() -> new ValidationRegisterLogin("Usuário ou senha inválidos"));
-
-            if (account.getStatus().equals(statusService.findByStatus(StatusConstants.TYPE_USER, StatusConstants.USER_NEW))) {
-                throw new ValidationRegisterLogin("Usuário não confirmado");
-            }
-
             //attempt to authenticate the login request
             Authentication auth = this.auhtenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword())
@@ -139,12 +130,11 @@ public class AccountServiceImpl implements AccountService {
      * @param authentication authentication
      * @return claims
      */
-    private Map<String, Object> createClaims(Authentication authentication) {
+    protected Map<String, Object> createClaims(Authentication authentication) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", authentication.getName());
 
         return claims;
-
     }
 
 

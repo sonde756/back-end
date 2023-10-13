@@ -58,9 +58,10 @@ public class EmailServiceImpl implements EmailService {
      * @param username the username of the user
      * @param token    the token of the user
      */
+
     @Override
     public String modelEmailHTML(String username, String token) {
-        String baseUrl = System.getenv("BASE_URL");
+        String baseUrl = "http://localhost:8081";
 
         return "<!DOCTYPE html>\n" +
                "<html lang=\"pt-br\">\n" +
