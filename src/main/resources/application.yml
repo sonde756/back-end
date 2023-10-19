@@ -21,10 +21,26 @@ spring:
     password: prakt3010
 
 
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: batista756l@gmail.com
+    password: PgsEMHBrcGq5LatW
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  sql:
+    init:
+      mode: always
+
 
 springfox:
   documentation:

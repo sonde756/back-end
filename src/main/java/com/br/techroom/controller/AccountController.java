@@ -26,13 +26,13 @@ import java.net.URI;
  * @Author Edson
  */
 
-@Api(value = "Account", tags = { "Account" })
+@Api(value = "Account", tags = {"Account"})
 @RestController
 @RequestMapping("/api/v1")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AccountController {
-    private final AccountService accountService;
-    private final ModelMapper modelMapper;
+    final AccountService accountService;
+    final ModelMapper modelMapper;
 
     @Autowired
     public AccountController(AccountService accountService, ModelMapper modelMapper) {
@@ -63,13 +63,14 @@ public class AccountController {
 
     /**
      * enpoit point to try to authenticate an account
+     *
      * @param loginRequestDTO the username and the password
      * @return response entity of LoginResponseDto with its username and token
      */
     @ApiOperation(value = "Account login")
     @ApiResponses(@ApiResponse(code = 200, message = "Account successfully logged in"))
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> attemptAuthentication(@Valid @RequestBody LoginRequestDTO loginRequestDTO){
-        return  ResponseEntity.ok(this.accountService.attemptAuthentication(loginRequestDTO));
+    public ResponseEntity<LoginResponseDTO> attemptAuthentication(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        return ResponseEntity.ok(this.accountService.attemptAuthentication(loginRequestDTO));
     }
 }

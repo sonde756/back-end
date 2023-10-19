@@ -24,16 +24,25 @@ import java.util.Date;
 public class AccountModel implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id_user")
     private Long idUser;
+
     @Column(unique = true, nullable = false, length = 20)
     private String username;
+
     @Column(unique = true, nullable = false, length = 100)
     private String email;
-    @Column(nullable = false)
+
+    @Column(nullable = false, length = 60)
     private String password;
-    @Column(nullable = false)
+
+    @Column(nullable = false, name = "created_at", updatable = false,
+            length = 30, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date createdAt;
 
+    @ManyToOne
+    @JoinColumn(name = "id_status", referencedColumnName = "id_status", nullable = false)
+    private Status status;
 
 
     @Override

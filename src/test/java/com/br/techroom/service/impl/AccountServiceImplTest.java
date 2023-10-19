@@ -6,6 +6,8 @@ import com.br.techroom.dto.responses.LoginResponseDTO;
 import com.br.techroom.exception.ValidationRegisterException;
 import com.br.techroom.model.AccountModel;
 import com.br.techroom.repository.AccountRepository;
+import com.br.techroom.service.EmailService;
+import com.br.techroom.service.StatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 
@@ -44,7 +47,15 @@ public class AccountServiceImplTest {
     private AccountRepository accountRepository;
 
     @Mock
+    private AccountTokenConfirmEmailServiceImpl accountTokenConfirmEmailService;
+    @Mock
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Mock
+    private StatusService statusService;
+
+    @Mock
+    private EmailService emailService;
 
     @Mock
     private ModelMapper modelMapper;
@@ -59,17 +70,24 @@ public class AccountServiceImplTest {
     @Test
     public void save() {
         var account = new RegisterRequestDTO("username", "email", "password", "password");
-        var accountModel = new AccountModel(null, "username", "email", "password", new Date());
+        var accountModel = new AccountModel(null, "username", "email", "password", new Date(), null);
 
         when(accountRepository.existsByUsername(anyString())).thenReturn(false);
         when(accountRepository.existsByEmail(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("password");
         when(accountRepository.save(accountModel)).thenReturn(accountModel);
+        when(statusService.findByStatus("type_user", "New")).thenReturn(null);
         when(modelMapper.map(account, AccountModel.class)).thenReturn(accountModel);
 
-        var result = accountService.save(account);
 
-        assertEquals(accountModel, result);
+        var accountModelSaved = accountService.save(account);
+        lenient().doNothing().when(emailService).sendEmailConfirmation(anyString(), anyString(), anyString());
+        lenient().doNothing().when(accountTokenConfirmEmailService).save(any(AccountModel.class));
+
+
+        assertEquals(accountModelSaved.getUsername(), accountModel.getUsername());
+        assertEquals(accountModelSaved.getEmail(), accountModel.getEmail());
+        assertEquals(accountModelSaved.getPassword(), accountModel.getPassword());
     }
 
     @Test
@@ -102,7 +120,7 @@ public class AccountServiceImplTest {
     @Test
     public void saveWithInternalErrorException() {
         var account = new RegisterRequestDTO("username", "email", "password", "password");
-        var accountModel = new AccountModel(null, "username", "email", "password", new Date());
+        var accountModel = new AccountModel(null, "username", "email", "password", new Date(), null);
 
         when(accountRepository.existsByUsername(anyString())).thenReturn(false);
         when(accountRepository.existsByEmail(anyString())).thenReturn(false);
