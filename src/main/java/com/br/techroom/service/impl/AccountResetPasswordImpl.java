@@ -1,2 +1,4 @@
-package com.br.techroom.service.impl;public class AccountResetPasswordImpl {
+package com.br.techroom.service.impl;
+
+public class AccountResetPasswordImpl {
 }
