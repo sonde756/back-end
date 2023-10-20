@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiResponseConfirmEmail {
+public class ApiResponseOk {
     private Boolean success;
     private String message;
 }

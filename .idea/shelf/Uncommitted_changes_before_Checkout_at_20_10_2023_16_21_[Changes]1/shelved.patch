@@ -1,0 +1,262 @@
+Index: src/main/java/com/br/techroom/service/EmailService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.service;\r\n\r\n\r\npublic interface EmailService {\r\n\r\n\r\n    void sendEmailConfirmation(String username, String email, String token);\r\n\r\n    String modelEmailHTML(String username, String token);\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/br/techroom/service/EmailService.java b/src/main/java/com/br/techroom/service/EmailService.java
+--- a/src/main/java/com/br/techroom/service/EmailService.java	
++++ b/src/main/java/com/br/techroom/service/EmailService.java	
+@@ -6,5 +6,15 @@
+ 
+     void sendEmailConfirmation(String username, String email, String token);
+ 
++
++    void sendEmailPasswordReset(String email, String token);
++
++    void sendEmailPasswordResetConfirm(String email);
++
+     String modelEmailHTML(String username, String token);
++
++    String modelEmailResetPasswordHTML(String token);
++
++    String modelEmailResetPasswordConfirmHTML();
++
+ }
+Index: src/main/java/com/br/techroom/service/impl/EmailServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.service.impl;\r\n\r\n\r\nimport com.br.techroom.exception.InternalErrorException;\r\nimport com.br.techroom.service.EmailService;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.mail.javamail.JavaMailSender;\r\nimport org.springframework.mail.javamail.MimeMessageHelper;\r\nimport org.springframework.stereotype.Service;\r\n\r\nimport javax.mail.MessagingException;\r\nimport javax.mail.internet.MimeMessage;\r\nimport java.io.UnsupportedEncodingException;\r\n\r\n/**\r\n * @Author Edson\r\n */\r\n@Service\r\npublic class EmailServiceImpl implements EmailService {\r\n\r\n    private final JavaMailSender javaMailSender;\r\n\r\n    @Autowired\r\n    public EmailServiceImpl(JavaMailSender javaMailSender) {\r\n        this.javaMailSender = javaMailSender;\r\n    }\r\n\r\n\r\n    /**\r\n     * responsible method for sending email confirmation\r\n     *\r\n     * @param username the username of the user\r\n     * @param email    the email of the user\r\n     * @param token    the token of the user\r\n     */\r\n    @Override\r\n    public void sendEmailConfirmation(String username, String email, String token) throws InternalErrorException {\r\n        try {\r\n            MimeMessage message = javaMailSender.createMimeMessage();\r\n\r\n            MimeMessageHelper helper = new MimeMessageHelper(message, true, \"UTF-8\");\r\n            helper.setFrom(\"cadastro@techroom.com\",\"TechRoom\");\r\n            helper.setTo(email);\r\n            helper.setSubject(\"Confirmação de cadastro\");\r\n\r\n            String content = modelEmailHTML(username, token);\r\n            helper.setText(content, true);\r\n\r\n            javaMailSender.send(message);\r\n        } catch (MessagingException | UnsupportedEncodingException e) {\r\n            throw new InternalErrorException(\"Erro ao enviar o e-mail de confirmação.\");\r\n        }\r\n    }\r\n\r\n\r\n    /**\r\n     * responsible method for email confirmation model\r\n     *\r\n     * @param username the username of the user\r\n     * @param token    the token of the user\r\n     */\r\n\r\n    @Override\r\n    public String modelEmailHTML(String username, String token) {\r\n        String baseUrl = \"http://localhost:8081\";\r\n\r\n        return \"<!DOCTYPE html>\\n\" +\r\n               \"<html lang=\\\"pt-br\\\">\\n\" +\r\n               \"<head>\\n\" +\r\n               \"    <meta charset=\\\"UTF-8\\\">\\n\" +\r\n               \"    <title><html lang=\\\"en\\\">\\n\" +\r\n               \"        <head>\\n\" +\r\n               \"        <meta charset=\\\"UTF-8\\\">\\n\" +\r\n               \"        <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\n\" +\r\n               \"        <title>Confirmação de Cadastro</title>\\n\" +\r\n               \"    <style>\\n\" +\r\n               \"\\n\" +\r\n               \"        body {\\n\" +\r\n               \"            font-family: Poppins, sans-serif;\\n\" +\r\n               \"            text-align: center;\\n\" +\r\n               \"        }\\n\" +\r\n               \"\\n\" +\r\n               \"        .container {\\n\" +\r\n               \"            margin: 50px auto;\\n\" +\r\n               \"            max-width: 600px;\\n\" +\r\n               \"            padding: 20px;\\n\" +\r\n               \"            background-color: #f9f9f9;\\n\" +\r\n               \"            border-radius: 10px;\\n\" +\r\n               \"        }\\n\" +\r\n               \"\\n\" +\r\n               \"        .button {\\n\" +\r\n               \"            display: inline-block;\\n\" +\r\n               \"            font-size: 16px;\\n\" +\r\n               \"            padding: 10px 20px;\\n\" +\r\n               \"            text-decoration: white;\\n\" +\r\n               \"            background-color: #007BFF;\\n\" +\r\n               \"            color: #fff;\\n\" +\r\n               \"            border-radius: 5px;\\n\" +\r\n               \"        }\\n\" +\r\n               \"\\n\" +\r\n               \"    </style>\\n\" +\r\n               \"</head>\\n\" +\r\n               \"<body>\\n\" +\r\n               \"<div class=\\\"container\\\">\\n\" +\r\n               \"    <h1>Confirmação de Cadastro</h1>\\n\" +\r\n               \"    <p>Olá, seja bem-vindo \" + username + \"!</p>\\n\" +\r\n               \"    <p>Por favor, clique no botão abaixo para confirmar o seu cadastro:</p>\\n\" +\r\n               \"    <a class=\\\"button\\\" id=\\\"bn\\\" style=\\\"color: #fff; \\\" href=\\\"\" + baseUrl + \"/api/v1/activate/\" + token + \"\\\">Confirmar Cadastro</a>\\n\" +\r\n               \"</div>\\n\" +\r\n               \"</body>\\n\" +\r\n               \"</html>\";\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/br/techroom/service/impl/EmailServiceImpl.java b/src/main/java/com/br/techroom/service/impl/EmailServiceImpl.java
+--- a/src/main/java/com/br/techroom/service/impl/EmailServiceImpl.java	
++++ b/src/main/java/com/br/techroom/service/impl/EmailServiceImpl.java	
+@@ -39,7 +39,7 @@
+             MimeMessage message = javaMailSender.createMimeMessage();
+ 
+             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+-            helper.setFrom("cadastro@techroom.com","TechRoom");
++            helper.setFrom("cadastro@techroom.com", "TechRoom");
+             helper.setTo(email);
+             helper.setSubject("Confirmação de cadastro");
+ 
+@@ -53,6 +53,45 @@
+     }
+ 
+ 
++    @Override
++    public void sendEmailPasswordReset(String email, String token) throws InternalErrorException {
++        try {
++            MimeMessage message = javaMailSender.createMimeMessage();
++
++            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
++            helper.setFrom("reset-password@techroom.com", "TechRoom");
++            helper.setTo(email);
++            helper.setSubject("Redefinição de senha");
++
++            String content = modelEmailResetPasswordHTML(token);
++            helper.setText(content, true);
++
++            javaMailSender.send(message);
++        } catch (MessagingException | UnsupportedEncodingException e) {
++            throw new InternalErrorException("Erro ao enviar o e-mail.");
++        }
++    }
++
++    @Override
++    public void sendEmailPasswordResetConfirm(String email) throws InternalErrorException {
++        try {
++            MimeMessage message = javaMailSender.createMimeMessage();
++
++            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
++            helper.setFrom("reset-password@techroom.com", "TechRoom");
++            helper.setTo(email);
++            helper.setSubject("Senha alterada com sucesso");
++
++            String content = modelEmailResetPasswordConfirmHTML();
++            helper.setText(content, true);
++
++            javaMailSender.send(message);
++        } catch (MessagingException | UnsupportedEncodingException e) {
++            throw new InternalErrorException("Erro ao enviar o e-mail.");
++        }
++    }
++
++
+     /**
+      * responsible method for email confirmation model
+      *
+@@ -110,5 +149,76 @@
+                "</body>\n" +
+                "</html>";
+     }
++
++    @Override
++    public String modelEmailResetPasswordHTML(String token) {
++        String baseUrl = "http://localhost:8081";
++
++        return "<!DOCTYPE html>\n" +
++               "<html lang=\"pt-br\">\n" +
++               "<head>\n" +
++               "    <meta charset=\"UTF-8\">\n" +
++               "    <title><html lang=\"en\">\n" +
++               "        <head>\n" +
++               "        <meta charset=\"UTF-8\">\n" +
++               "        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
++               "        <title>Redefinição de senha</title>\n" +
++               "    <style>\n" +
++               "\n" +
++               "        body {\n" +
++               "            font-family: Poppins, sans-serif;\n" +
++               "            text-align: center;\n" +
++               "        }\n" +
++               "\n" +
++               "        .container {\n" +
++               "            margin: 50px auto;\n" +
++               "            max-width: 600px;\n" +
++               "            padding: 20px;\n" +
++               "            background-color: #f9f9f9;\n" +
++               "            border-radius: 10px;\n" +
++               "        }\n" +
++               "\n" +
++               "        .button {\n" +
++               "            display: inline-block;\n" +
++               "            font-size: 16px;\n" +
++               "            padding: 10px 20px;\n" +
++               "            text-decoration: white;\n" +
++               "            background-color: #007BFF;\n" +
++               "            color: #fff;\n" +
++               "            border-radius: 5px;\n" +
++               "        }\n" +
++               "\n" +
++               "    </style>\n" +
++               "</head>\n" +
++               "<body>\n" +
++               "<div class=\"container\">\n" +
++               "    <h1>Redefinição de senha</h1>\n" +
++               "    <p>Olá!</p>\n" +
++               "    <p>Por favor, clique no botão abaixo para redefinir sua senha:</p>\n" +
++               "    <a class=\"button\" id=\"bn\" style=\"color: #fff; \" href=\"" + baseUrl + "/api/v1/reset-password/" + token + "\">Redefinir de senha</a>\n" +
++               "</div>\n" +
++               "</body>\n" +
++               "</html>";
++
++
++    }
++
++    @Override
++    public String modelEmailResetPasswordConfirmHTML() {
++        return "<!DOCTYPE html>\n" +
++               "<html lang=\"en\">\n" +
++               "<head>\n" +
++               "    <meta charset=\"UTF-8\">\n" +
++               "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
++               "    <title>Senha Alterada com Sucesso</title>\n" +
++               "</head>\n" +
++               "<body>\n" +
++               "    <h1>Senha Alterada com Sucesso</h1>\n" +
++               "    <p>Sua senha foi alterada com sucesso.</p>\n" +
++               "    <p>Se você não realizou esta alteração, por favor, entre em contato conosco imediatamente.</p>\n" +
++               "</body>\n" +
++               "</html>\n";
++    }
++
+ 
+ }
+Index: src/main/java/com/br/techroom/util/TokenGenerator.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.util;\r\n\r\nimport java.security.SecureRandom;\r\n\r\npublic class TokenGenerator {\r\n\r\n    public static String generateToken() {\r\n        SecureRandom random = new SecureRandom();\r\n        byte[] tokenBytes = new byte[60 / 2];\r\n        random.nextBytes(tokenBytes);\r\n        StringBuilder token = new StringBuilder(60);\r\n\r\n        for (byte b : tokenBytes) {\r\n            token.append(String.format(\"%02x\", b));\r\n        }\r\n        return token.toString();\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/br/techroom/util/TokenGenerator.java b/src/main/java/com/br/techroom/util/TokenGenerator.java
+--- a/src/main/java/com/br/techroom/util/TokenGenerator.java	
++++ b/src/main/java/com/br/techroom/util/TokenGenerator.java	
+@@ -16,4 +16,16 @@
+         return token.toString();
+     }
+ 
++    public static String generateTokenPassword() {
++        SecureRandom random = new SecureRandom();
++        byte[] tokenBytes = new byte[30 / 2];
++        random.nextBytes(tokenBytes);
++        StringBuilder token = new StringBuilder(30);
++
++        for (byte b : tokenBytes) {
++            token.append(String.format("%02x", b));
++        }
++        return token.toString();
++    }
++
+ }
+Index: src/main/java/com/br/techroom/controller/AccountTokenConfirmEmailController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.controller;\r\n\r\n\r\nimport com.br.techroom.dto.responses.ApiResponseConfirmEmail;\r\nimport com.br.techroom.service.AccountTokenConfirmEmailService;\r\nimport io.swagger.annotations.Api;\r\nimport io.swagger.annotations.ApiOperation;\r\nimport io.swagger.annotations.ApiResponse;\r\nimport io.swagger.annotations.ApiResponses;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.*;\r\n\r\n@Api(value = \"AccountTokenConfirmEmail\", tags = {\"AccountTokenConfirmEmail\"})\r\n@RestController\r\n@RequestMapping(\"/api/v1\")\r\n@CrossOrigin(origins = \"*\", maxAge = 3600)\r\npublic class AccountTokenConfirmEmailController {\r\n\r\n    final AccountTokenConfirmEmailService accountTokenConfirmEmailService;\r\n\r\n    @Autowired\r\n    public AccountTokenConfirmEmailController(AccountTokenConfirmEmailService accountTokenConfirmEmailService) {\r\n        this.accountTokenConfirmEmailService = accountTokenConfirmEmailService;\r\n    }\r\n\r\n    @ApiOperation(value = \"Confirm email with token\")\r\n    @ApiResponses(value = {\r\n            @ApiResponse(code = 200, message = \"Email confirmed\"),\r\n            @ApiResponse(code = 400, message = \"Bad request\")\r\n    })\r\n    @GetMapping(\"/activate/{token}\")\r\n    public ResponseEntity<ApiResponseConfirmEmail> confirmEmail(@PathVariable String token) {\r\n        accountTokenConfirmEmailService.confirmEmailWithToken(token);\r\n        return ResponseEntity.ok(new ApiResponseConfirmEmail(true, \"Email confirmed\"));\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/br/techroom/controller/AccountTokenConfirmEmailController.java b/src/main/java/com/br/techroom/controller/AccountTokenConfirmEmailController.java
+--- a/src/main/java/com/br/techroom/controller/AccountTokenConfirmEmailController.java	
++++ b/src/main/java/com/br/techroom/controller/AccountTokenConfirmEmailController.java	
+@@ -1,7 +1,7 @@
+ package com.br.techroom.controller;
+ 
+ 
+-import com.br.techroom.dto.responses.ApiResponseConfirmEmail;
++import com.br.techroom.dto.responses.ApiResponseCompleted;
+ import com.br.techroom.service.AccountTokenConfirmEmailService;
+ import io.swagger.annotations.Api;
+ import io.swagger.annotations.ApiOperation;
+@@ -30,9 +30,9 @@
+             @ApiResponse(code = 400, message = "Bad request")
+     })
+     @GetMapping("/activate/{token}")
+-    public ResponseEntity<ApiResponseConfirmEmail> confirmEmail(@PathVariable String token) {
++    public ResponseEntity<ApiResponseCompleted> confirmEmail(@PathVariable String token) {
+         accountTokenConfirmEmailService.confirmEmailWithToken(token);
+-        return ResponseEntity.ok(new ApiResponseConfirmEmail(true, "Email confirmed"));
++        return ResponseEntity.ok(new ApiResponseCompleted(true, "Email confirmed"));
+     }
+ 
+ }
+Index: src/main/java/com/br/techroom/config/SecurityConfig.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.config;\r\n\r\nimport com.br.techroom.service.impl.JwtService;\r\nimport org.springframework.context.annotation.Bean;\r\nimport org.springframework.context.annotation.Configuration;\r\nimport org.springframework.security.authentication.AuthenticationManager;\r\nimport org.springframework.security.config.Customizer;\r\nimport org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;\r\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\r\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\r\nimport org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;\r\nimport org.springframework.security.config.http.SessionCreationPolicy;\r\nimport org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;\r\nimport org.springframework.security.web.SecurityFilterChain;\r\nimport org.springframework.security.web.authentication.www.BasicAuthenticationFilter;\r\n\r\n/**\r\n * basic configuration to the Authentication process.\r\n */\r\n@Configuration\r\n@EnableWebSecurity\r\npublic class SecurityConfig{\r\n\r\n    @Bean\r\n    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {\r\n\r\n        return http\r\n\r\n                .sessionManagement(session -> session\r\n                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))\r\n\r\n                .csrf(AbstractHttpConfigurer::disable)\r\n\r\n                .authorizeHttpRequests(auth -> auth\r\n                        .antMatchers(\"/api/v1/register\").permitAll()\r\n                        .antMatchers(\"/api/v1/login\").permitAll()\r\n                        .antMatchers(\"/api/v1/activate/**\").permitAll()\r\n                        .antMatchers(\"/swagger-ui/**\", \"/swagger-resources/**\", \"/v2/api-docs\", \"/v3/api-docs\", \"/webjars/**\").permitAll()\r\n                        .anyRequest().authenticated()\r\n                )\r\n\r\n                .addFilterBefore(new JwtValidatorFilter(new JwtService()), BasicAuthenticationFilter.class)\r\n\r\n                .formLogin(Customizer.withDefaults())\r\n                .httpBasic(Customizer.withDefaults())\r\n                .build();\r\n    }\r\n\r\n   @Bean\r\n    public BCryptPasswordEncoder passwordEncoder() {\r\n        return new BCryptPasswordEncoder();\r\n    }\r\n\r\n    @Bean\r\n    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {\r\n        return authenticationConfiguration.getAuthenticationManager();\r\n    }\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/br/techroom/config/SecurityConfig.java b/src/main/java/com/br/techroom/config/SecurityConfig.java
+--- a/src/main/java/com/br/techroom/config/SecurityConfig.java	
++++ b/src/main/java/com/br/techroom/config/SecurityConfig.java	
+@@ -35,6 +35,7 @@
+                         .antMatchers("/api/v1/register").permitAll()
+                         .antMatchers("/api/v1/login").permitAll()
+                         .antMatchers("/api/v1/activate/**").permitAll()
++                        .antMatchers("/api/v1/reset-password/**").permitAll()
+                         .antMatchers("/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs", "/v3/api-docs", "/webjars/**").permitAll()
+                         .anyRequest().authenticated()
+                 )
+Index: src/main/resources/data.sql
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/resources/data.sql b/src/main/resources/data.sql
+--- a/src/main/resources/data.sql	
++++ b/src/main/resources/data.sql	
+@@ -1,0 +1,8 @@
++/*CREATE TABLE status (
++                        id_status SERIAL PRIMARY KEY,
++                        status VARCHAR(255) NOT NULL,
++                        type_status VARCHAR(255) NOT NULL
++); /*para roda fora do compose apague o create table*/
++*/
++INSERT INTO status (id_status, status, type_status) VALUES (1, 'New', 'type_user');
++INSERT INTO status (id_status, status, type_status) VALUES (2, 'Active', 'type_user');
+\ No newline at end of file

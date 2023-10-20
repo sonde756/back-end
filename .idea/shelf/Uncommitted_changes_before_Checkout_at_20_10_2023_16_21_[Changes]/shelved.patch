@@ -1,0 +1,322 @@
+Index: src/main/java/com/br/techroom/service/AccountResetPasswordService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.service;public interface AccountResetPasswordService {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/service/AccountResetPasswordService.java b/src/main/java/com/br/techroom/service/AccountResetPasswordService.java
+--- a/src/main/java/com/br/techroom/service/AccountResetPasswordService.java	
++++ b/src/main/java/com/br/techroom/service/AccountResetPasswordService.java	
+@@ -1,2 +1,8 @@
+-package com.br.techroom.service;public interface AccountResetPasswordService {
++package com.br.techroom.service;
++
++import com.br.techroom.dto.requests.ResetPasswordDTO;
++
++public interface AccountResetPasswordService {
++    void saveTokenResetPassword(String email);
++    void resetPassword(String token, ResetPasswordDTO password);
+ }
+Index: src/main/java/com/br/techroom/controller/AccountResetPasswordController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.controller;public class AccountResetPasswordController {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/controller/AccountResetPasswordController.java b/src/main/java/com/br/techroom/controller/AccountResetPasswordController.java
+--- a/src/main/java/com/br/techroom/controller/AccountResetPasswordController.java	
++++ b/src/main/java/com/br/techroom/controller/AccountResetPasswordController.java	
+@@ -1,2 +1,47 @@
+-package com.br.techroom.controller;public class AccountResetPasswordController {
++package com.br.techroom.controller;
++
++import com.br.techroom.dto.requests.ResetPasswordDTO;
++import com.br.techroom.dto.responses.ApiResponseCompleted;
++import com.br.techroom.service.AccountResetPasswordService;
++import io.swagger.annotations.Api;
++import io.swagger.annotations.ApiOperation;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.http.ResponseEntity;
++import org.springframework.web.bind.annotation.*;
++
++/**
++ * Classe responsável por controlar as requisições de registro de usuário.
++ *
++ * @Author Edson
++ */
++
++@Api(value = "AccountResetPassword", tags = {"AccountResetPassword"})
++@RestController
++@RequestMapping("/api/v1")
++@CrossOrigin(origins = "*", maxAge = 3600)
++public class AccountResetPasswordController {
++
++    final
++    AccountResetPasswordService accountResetPasswordService;
++
++    @Autowired
++    public AccountResetPasswordController(AccountResetPasswordService accountResetPasswordService) {
++        this.accountResetPasswordService = accountResetPasswordService;
++    }
++
++
++    @ApiOperation(value = "Reset password")
++    @PostMapping("/reset-password")
++    public ResponseEntity<ApiResponseCompleted> resetPassword(String email) {
++        accountResetPasswordService.saveTokenResetPassword(email);
++        return ResponseEntity.ok(new ApiResponseCompleted(true, "Email sent"));
++    }
++
++
++    @ApiOperation(value = "Reset password with token")
++    @PostMapping("/reset-password/{token}")
++    public ResponseEntity<ApiResponseCompleted> resetPassword(@RequestBody ResetPasswordDTO password, @PathVariable String token) {
++        accountResetPasswordService.resetPassword(token, password);
++        return ResponseEntity.ok(new ApiResponseCompleted(true, "Password reset"));
++    }
+ }
+Index: src/main/java/com/br/techroom/service/impl/AccountResetPasswordImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.service.impl;public class AccountResetPasswordImpl {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/service/impl/AccountResetPasswordImpl.java b/src/main/java/com/br/techroom/service/impl/AccountResetPasswordImpl.java
+--- a/src/main/java/com/br/techroom/service/impl/AccountResetPasswordImpl.java	
++++ b/src/main/java/com/br/techroom/service/impl/AccountResetPasswordImpl.java	
+@@ -1,2 +1,120 @@
+-package com.br.techroom.service.impl;public class AccountResetPasswordImpl {
++package com.br.techroom.service.impl;
++
++import com.br.techroom.dto.requests.ResetPasswordDTO;
++import com.br.techroom.exception.ConfirmEmailException;
++import com.br.techroom.exception.ResetPasswordException;
++import com.br.techroom.model.AccountTokenPasswordReset;
++import com.br.techroom.repository.AccountRepository;
++import com.br.techroom.repository.AccountTokenPasswordResetRepository;
++import com.br.techroom.service.AccountResetPasswordService;
++import com.br.techroom.service.EmailService;
++import org.modelmapper.ModelMapper;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++
++import java.time.LocalDateTime;
++import java.util.Optional;
++
++import static com.br.techroom.util.TokenGenerator.generateTokenPassword;
++
++/**
++ * class implementation of the AccountResetPasswordService.
++ *
++ * @Author Edson
++ */
++@Service
++public class AccountResetPasswordImpl implements AccountResetPasswordService {
++
++    final
++    AccountRepository accountRepository;
++    final
++    ModelMapper modelMapper;
++    final
++    PasswordEncoder passwordEncoder;
++    final
++    AccountTokenPasswordResetRepository accountTokenPasswordResetRepository;
++    final
++    EmailService emailService;
++
++    @Autowired
++    public AccountResetPasswordImpl(AccountRepository accountRepository, ModelMapper modelMapper,
++                                    PasswordEncoder passwordEncoder, AccountTokenPasswordResetRepository
++                                                accountTokenPasswordResetRepository, EmailService emailService) {
++        this.accountRepository = accountRepository;
++        this.modelMapper = modelMapper;
++        this.passwordEncoder = passwordEncoder;
++        this.accountTokenPasswordResetRepository = accountTokenPasswordResetRepository;
++        this.emailService = emailService;
++    }
++
++
++    /**
++     * method responsible for saving the token to reset the password
++     * in the database and sending the email.
++     *
++     * @param email String
++     */
++    @Transactional
++    @Override
++    public void saveTokenResetPassword(String email) {
++
++        var accountModelOptional = accountRepository.findByEmail(email);
++        var accountModel = accountModelOptional.
++                orElseThrow(() -> new ConfirmEmailException(""));
++
++        // if the user already has a token, it will be updated
++        if (accountTokenPasswordResetRepository.existsByIdUser(accountModel)) {
++            var tokenResetPassword = accountTokenPasswordResetRepository.findByIdUser(accountModel);
++            tokenSaveAndEmailSend(email, tokenResetPassword);
++        } else {
++            // if the user does not have a token, it will be created
++            var tokenResetPassword = modelMapper.map(accountModel, AccountTokenPasswordReset.class);
++            tokenSaveAndEmailSend(email, tokenResetPassword);
++        }
++    }
++    private void tokenSaveAndEmailSend(String email, AccountTokenPasswordReset tokenResetPassword) {
++        tokenResetPassword.setTokenConfirmation(generateTokenPassword());
++        tokenResetPassword.setDateExpiration(LocalDateTime.now().plusMinutes(15L));
++        accountTokenPasswordResetRepository.save(tokenResetPassword);
++        emailService.sendEmailPasswordReset(email, tokenResetPassword.getTokenConfirmation());
++    }
++
++
++    /**
++     * method responsible for reseting the password.
++     *
++     * @param token    String
++     * @param password ResetPasswordDTO
++     */
++    @Transactional
++    @Override
++    public void resetPassword(String token, ResetPasswordDTO password) {
++        try {
++            var accountTokenPasswordReset =
++                    Optional.ofNullable(accountTokenPasswordResetRepository.findByTokenConfirmation(token))
++                            .orElseThrow(() -> new ConfirmEmailException("Token não encontrado ou inválido"));
++
++            if (!password.getPassword().equals(password.getConfirmPassword())) {
++                throw new ResetPasswordException("Senhas não conferem");
++            }
++
++            if (accountTokenPasswordReset.getDateExpiration().isBefore(LocalDateTime.now())) {
++                accountTokenPasswordResetRepository.delete(accountTokenPasswordReset);
++                throw new ResetPasswordException("Token expirado, solicite um novo token");
++            }
++
++            var accountModel = accountRepository.getReferenceById(accountTokenPasswordReset.getIdUser().getIdUser());
++            accountModel.setPassword(passwordEncoder.encode(password.getPassword()));
++
++            accountRepository.save(accountModel);
++            accountTokenPasswordResetRepository.delete(accountTokenPasswordReset);
++            emailService.sendEmailPasswordResetConfirm(accountModel.getEmail());
++        } catch (ResetPasswordException e) {
++            throw new ResetPasswordException(e.getMessage());
++        }
++    }
++
++
+ }
+Index: src/main/java/com/br/techroom/repository/AccountTokenPasswordResetRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.repository;public class AccountTokenPasswordResetRepository {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/repository/AccountTokenPasswordResetRepository.java b/src/main/java/com/br/techroom/repository/AccountTokenPasswordResetRepository.java
+--- a/src/main/java/com/br/techroom/repository/AccountTokenPasswordResetRepository.java	
++++ b/src/main/java/com/br/techroom/repository/AccountTokenPasswordResetRepository.java	
+@@ -1,2 +1,14 @@
+-package com.br.techroom.repository;public class AccountTokenPasswordResetRepository {
++package com.br.techroom.repository;
++
++import com.br.techroom.model.AccountModel;
++import com.br.techroom.model.AccountTokenPasswordReset;
++import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.stereotype.Repository;
++
++@Repository
++public interface AccountTokenPasswordResetRepository extends JpaRepository<AccountTokenPasswordReset,
++        Long> {
++    AccountTokenPasswordReset findByTokenConfirmation(String token);
++    AccountTokenPasswordReset findByIdUser(AccountModel idUser);
++    boolean existsByIdUser(AccountModel idUser);
+ }
+Index: src/main/java/com/br/techroom/exception/ResetPasswordException.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.exception;\r\n\r\npublic class ConfirmEmailException extends RuntimeException {\r\n    public ConfirmEmailException(String msg) {\r\n        super(msg);\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/exception/ResetPasswordException.java b/src/main/java/com/br/techroom/exception/ResetPasswordException.java
+--- a/src/main/java/com/br/techroom/exception/ResetPasswordException.java	
++++ b/src/main/java/com/br/techroom/exception/ResetPasswordException.java	
+@@ -1,7 +1,7 @@
+ package com.br.techroom.exception;
+ 
+-public class ConfirmEmailException extends RuntimeException {
+-    public ConfirmEmailException(String msg) {
++public class ResetPasswordException extends RuntimeException {
++    public ResetPasswordException(String msg) {
+         super(msg);
+     }
+ }
+Index: src/main/java/com/br/techroom/model/AccountTokenPasswordReset.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.model;\r\n\r\nimport lombok.AllArgsConstructor;\r\nimport lombok.Getter;\r\nimport lombok.NoArgsConstructor;\r\nimport lombok.Setter;\r\n\r\nimport javax.persistence.*;\r\nimport java.time.LocalDateTime;\r\n\r\n@NoArgsConstructor\r\n@AllArgsConstructor\r\n@Getter\r\n@Setter\r\n@Entity\r\n@Table(name = \"account_token_email\")\r\npublic class AccountTokenConfirmEmail {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    @Column(name = \"id_user_token\")\r\n    private Long idUserToken;\r\n\r\n    @Column(name = \"token_confirmation\", length = 60, nullable = false)\r\n    private String tokenConfirmation;\r\n\r\n    @Column(name = \"date_expiration\",\r\n            nullable = false, columnDefinition = \"TIMESTAMP\", length = 35)\r\n    private LocalDateTime dateExpiration;\r\n\r\n    @OneToOne\r\n    @JoinColumn(name = \"id_user\", referencedColumnName = \"id_user\")\r\n    private AccountModel idUser;\r\n\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/model/AccountTokenPasswordReset.java b/src/main/java/com/br/techroom/model/AccountTokenPasswordReset.java
+--- a/src/main/java/com/br/techroom/model/AccountTokenPasswordReset.java	
++++ b/src/main/java/com/br/techroom/model/AccountTokenPasswordReset.java	
+@@ -13,15 +13,15 @@
+ @Getter
+ @Setter
+ @Entity
+-@Table(name = "account_token_email")
+-public class AccountTokenConfirmEmail {
++@Table(name = "account_token_password_reset")
++public class AccountTokenPasswordReset {
+ 
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+     @Column(name = "id_user_token")
+     private Long idUserToken;
+ 
+-    @Column(name = "token_confirmation", length = 60, nullable = false)
++    @Column(name = "token_confirmation", length = 30, nullable = false)
+     private String tokenConfirmation;
+ 
+     @Column(name = "date_expiration",
+Index: src/main/java/com/br/techroom/dto/responses/ApiResponseCompleted.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.dto.responses;\r\n\r\n\r\nimport lombok.AllArgsConstructor;\r\nimport lombok.Data;\r\nimport lombok.NoArgsConstructor;\r\n\r\n/**\r\n * Classe de resposta de registro de usuário.\r\n *\r\n *@Author Edson Rafael\r\n */\r\n@Data\r\n@AllArgsConstructor\r\n@NoArgsConstructor\r\npublic class ApiResponseConfirmEmail {\r\n    private Boolean success;\r\n    private String message;\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/dto/responses/ApiResponseCompleted.java b/src/main/java/com/br/techroom/dto/responses/ApiResponseCompleted.java
+--- a/src/main/java/com/br/techroom/dto/responses/ApiResponseCompleted.java	
++++ b/src/main/java/com/br/techroom/dto/responses/ApiResponseCompleted.java	
+@@ -13,7 +13,7 @@
+ @Data
+ @AllArgsConstructor
+ @NoArgsConstructor
+-public class ApiResponseConfirmEmail {
++public class ApiResponseCompleted {
+     private Boolean success;
+     private String message;
+ }
+Index: src/main/java/com/br/techroom/dto/requests/ResetPasswordDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.br.techroom.dto.requests;public class ResetPasswordDTO {\r\n}\r\n
+===================================================================
+diff --git a/src/main/java/com/br/techroom/dto/requests/ResetPasswordDTO.java b/src/main/java/com/br/techroom/dto/requests/ResetPasswordDTO.java
+--- a/src/main/java/com/br/techroom/dto/requests/ResetPasswordDTO.java	
++++ b/src/main/java/com/br/techroom/dto/requests/ResetPasswordDTO.java	
+@@ -1,2 +1,21 @@
+-package com.br.techroom.dto.requests;public class ResetPasswordDTO {
++package com.br.techroom.dto.requests;
++
++import lombok.AllArgsConstructor;
++import lombok.Data;
++import lombok.NoArgsConstructor;
++
++import javax.validation.constraints.NotBlank;
++import javax.validation.constraints.Size;
++
++@Data
++@AllArgsConstructor
++@NoArgsConstructor
++public class ResetPasswordDTO {
++    @NotBlank
++    @Size(min = 6, max = 20, message = "Senha deve ter entre 6 e 20 caracteres")
++    private String password;
++
++    @NotBlank
++    @NotBlank(message = "Confirmação de senha não pode ser vazio")
++    private String confirmPassword;
+ }
