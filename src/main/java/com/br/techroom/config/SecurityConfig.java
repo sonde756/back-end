@@ -35,6 +35,7 @@ public class SecurityConfig{
                         .antMatchers("/api/v1/register").permitAll()
                         .antMatchers("/api/v1/login").permitAll()
                         .antMatchers("/api/v1/activate/**").permitAll()
+                        .antMatchers("/api/v1/reset-password/**").permitAll()
                         .antMatchers("/swagger-ui/**", "/swagger-resources/**", "/v2/api-docs", "/v3/api-docs", "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
