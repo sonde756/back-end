@@ -16,4 +16,16 @@ public class TokenGenerator {
         return token.toString();
     }
 
+    public static String generateTokenPassword() {
+        SecureRandom random = new SecureRandom();
+        byte[] tokenBytes = new byte[30 / 2];
+        random.nextBytes(tokenBytes);
+        StringBuilder token = new StringBuilder(30);
+
+        for (byte b : tokenBytes) {
+            token.append(String.format("%02x", b));
+        }
+        return token.toString();
+    }
+
 }
