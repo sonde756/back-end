@@ -1,7 +1,7 @@
 package com.br.techroom.controller;
 
 
-import com.br.techroom.dto.responses.ApiResponseConfirmEmail;
+import com.br.techroom.dto.responses.ApiResponseOk;
 import com.br.techroom.service.AccountTokenConfirmEmailService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,9 +30,9 @@ public class AccountTokenConfirmEmailController {
             @ApiResponse(code = 400, message = "Bad request")
     })
     @GetMapping("/activate/{token}")
-    public ResponseEntity<ApiResponseConfirmEmail> confirmEmail(@PathVariable String token) {
+    public ResponseEntity<ApiResponseOk> confirmEmail(@PathVariable String token) {
         accountTokenConfirmEmailService.confirmEmailWithToken(token);
-        return ResponseEntity.ok(new ApiResponseConfirmEmail(true, "Email confirmed"));
+        return ResponseEntity.ok(new ApiResponseOk(true, "Email confirmed"));
     }
 
 }
