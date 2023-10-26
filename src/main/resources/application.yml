@@ -15,12 +15,9 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-
-    url: jdbc:postgresql://${postgres.host}/users
-    username: supersu
-    password: prakt3010
-
-
+    url: jdbc:postgresql://${postgres.host}/techy
+    username: postgres
+    password: 1234567
 
   jpa:
     hibernate:
@@ -31,6 +28,8 @@ spring:
     port: 587
     username: batista756l@gmail.com
     password: PgsEMHBrcGq5LatW
+    support:
+      register: cadastro@techroom.com
     properties:
       mail:
         smtp:
@@ -41,11 +40,12 @@ spring:
     init:
       mode: always
 
+jwt:
+  config:
+    key:
+      secret: ${KEY_SECRET:tech-room-application-secret-key-for-tests}
+      issuer: ${ISSUER:techroom}
 
-springfox:
-  documentation:
-    info:
-      title: TechRoom API
-      description: TechRoom API Docs.
-      version: 1.0
-    base-package: com.br.techroom
+springdoc:
+  api-docs:
+    path: /swagger-ui.html
