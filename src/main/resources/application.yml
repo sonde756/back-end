@@ -15,13 +15,13 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    url: jdbc:postgresql://${postgres.host}/techy
-    username: postgres
-    password: 1234567
+    url: jdbc:postgresql://${postgres.host}/users
+    username: supersu
+    password: prakt3010
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
   mail:
     host: smtp-relay.brevo.com
