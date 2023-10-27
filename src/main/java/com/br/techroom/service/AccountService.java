@@ -19,6 +19,7 @@ import jakarta.mail.MessagingException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,11 +94,15 @@ public class AccountService {
 
     @Transactional
     public AccountLoginResponseDTO login(AccountLoginRequestDTO requestDto) {
-        Authentication authentication = manager.authenticate(
-                new UsernamePasswordAuthenticationToken(requestDto.getUsername(), requestDto.getPassword()));
+        try {
+            Authentication authentication = manager.authenticate(
+                    new UsernamePasswordAuthenticationToken(requestDto.getUsername(), requestDto.getPassword()));
 
-        return new AccountLoginResponseDTO(authentication.getName(),
-                jwtService.generateToken((Account) authentication.getPrincipal()));
+            return new AccountLoginResponseDTO(authentication.getName(),
+                    jwtService.generateToken((Account) authentication.getPrincipal()));
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Email ou senha incorretos");
+        }
     }
 
     @Transactional
